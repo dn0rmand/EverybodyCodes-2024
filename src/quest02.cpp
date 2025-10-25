@@ -211,7 +211,7 @@ static unsigned int part1()
 {
     unsigned short sum = 0;
 
-    void *data = tools::readData("../data/quest02_1_data.raw");
+    void *data = tools::readData("02", 1);
     for (const char *sentence = (const char *)data; *sentence >= 32; sentence++)
     {
         for (int i = 0; words_1[i]; i++)
@@ -233,7 +233,7 @@ static unsigned int part2()
     unsigned short sum = 0;
     short remaining = 0;
 
-    void *data = tools::readData("../data/quest02_2_data.raw");
+    void *data = tools::readData("02", 2);
     const char *string = (const char *)data;
     int totalLength = strlen(string);
 
@@ -405,7 +405,7 @@ public:
 
 static unsigned int part3()
 {
-    void *data = tools::readData("../data/quest02_3_data.raw");
+    void *data = tools::readData("02", 3);
 
     Data string((const char *)data);
 

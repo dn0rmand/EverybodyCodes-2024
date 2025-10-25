@@ -42,7 +42,7 @@ static char *readLine()
 
 static void loadData()
 {
-    quest01_data = (const char *)tools::readData("../data/quest01_data.raw");
+    quest01_data = (const char *)tools::readData("01", 1);
     cursor = (char *)quest01_data;
 
     input1 = readLine();

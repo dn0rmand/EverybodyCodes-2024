@@ -134,7 +134,7 @@ public:
 
 static unsigned int part1()
 {
-    Data data(tools::readData("../data/quest04_1_data.raw"));
+    Data data(tools::readData("04", 1));
 
     unsigned int total = data.calculate();
 
@@ -143,7 +143,7 @@ static unsigned int part1()
 
 static unsigned int part2()
 {
-    Data data(tools::readData("../data/quest04_2_data.raw"));
+    Data data(tools::readData("04", 2));
 
     unsigned int total = data.calculate();
 
@@ -152,7 +152,7 @@ static unsigned int part2()
 
 static unsigned int part3()
 {
-    Data data(tools::readData("../data/quest04_3_data.raw"));
+    Data data(tools::readData("04", 3));
 
     unsigned int total = data.calculate2();
 

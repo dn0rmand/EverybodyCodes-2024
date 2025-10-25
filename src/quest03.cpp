@@ -132,7 +132,7 @@ public:
 
 static unsigned int part1()
 {
-    Data map(tools::readData("../data/quest03_1_data.raw"));
+    Data map(tools::readData("03", 1));
     int total = 0;
 
     for (char step = '0';; step++)
@@ -149,7 +149,7 @@ static unsigned int part1()
 
 static unsigned int part2()
 {
-    Data map(tools::readData("../data/quest03_2_data.raw"));
+    Data map(tools::readData("03", 2));
     int total = 0;
 
     for (char step = '0';; step++)
@@ -166,7 +166,7 @@ static unsigned int part2()
 
 static unsigned int part3()
 {
-    Data map(tools::readData("../data/quest03_3_data.raw"), true);
+    Data map(tools::readData("03", 3), true);
     int total = 0;
 
     for (char step = '0';; step++)

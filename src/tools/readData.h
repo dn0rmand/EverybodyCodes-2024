@@ -7,7 +7,10 @@
 
 namespace tools
 {
-    void *readData(const char name[]) {
+    void *readData(const char day[], int part) {
+        char name[100];
+
+        snprintf(name, 100, "../data/quest%s/%i.raw", day, part);
         FILE *file = fopen(name, "r");
         
         fseek(file, 0L, SEEK_END);
