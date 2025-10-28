@@ -26,7 +26,7 @@ namespace tools
         return (void *)data;
     }
 
-    static short stringLength(const char *ptr)
+    short stringLength(const char *ptr)
     {
         short length = 0;
         while (*ptr >= 32)

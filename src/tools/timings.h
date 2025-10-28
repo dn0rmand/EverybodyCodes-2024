@@ -16,7 +16,7 @@ class Timing
 
             int msec = (end-this->start) * 1000 / CLOCKS_PER_SEC;
 
-            printf("Executed in %d seconds %d milliseconds", msec/1000, msec%1000);
+            printf("Executed in %d seconds %d milliseconds\n", msec/1000, msec%1000);
         }
 
         Timing()
