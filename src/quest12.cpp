@@ -20,39 +20,94 @@ public:
     std::map<char, struct Point> segments;
     std::vector<struct Point> targets;
 
+    static int getValue(char **ptr)
+    {
+        int value = 0;
+        char *p = *ptr;
+        while (*p && *p <= ' ')
+        {
+            p++;
+        }
+
+        if (!*p)
+        {
+            *ptr = p;
+            return -1;
+        }
+
+        while (*p >= '0' && *p <= '9')
+        {
+            const char c = *p++;
+            value = value * 10 + (c - '0');
+        }
+        *ptr = p;
+        return value;
+    }
+
     Map(int part)
     {
         char *data = (char *)tools::readData(DAY, part);
-        int w = tools::stringLength(data) + 1;
-        int h = (strlen(data) + 1) / w;
-
-        for (int i = 0; data[i]; i++)
+        if (part == 3)
         {
-            char c = data[i];
-            switch (c)
+            struct Point ptA = {.x = 0, .y = 0};
+            struct Point ptB = {.x = 0, .y = 1};
+            struct Point ptC = {.x = 0, .y = 2};
+
+            segments['C'] = ptC;
+            segments['B'] = ptB;
+            segments['A'] = ptA;
+
+            char *ptr = data;
+            while (*ptr)
             {
-                case 'T':
-                case 'H':
+                int x = getValue(&ptr);
+                if (x <= 0)
                 {
-                    struct Point pt;
-                    pt.x = i % w;
-                    pt.y = h - 1 - (i - pt.x) / w;
-                    pt.hits = c == 'T' ? 1 : 2;
-                    targets.push_back(pt);
                     break;
                 }
-                case '.':
-                case 0x0A:
-                case '=':
-                    break;
-                default:
+                int y = getValue(&ptr);
+                if (y <= 0)
                 {
-                    struct Point pt;
-                    pt.x = i % w;
-                    pt.y = h - 1 - (i - pt.x) / w;
+                    throw;
+                }
 
-                    segments[c] = pt;
-                    break;
+                struct Point pt = {.x = x, .y = y, .hits = 1};
+                targets.push_back(pt);
+            }
+        }
+        else
+        {
+            int w = tools::stringLength(data) + 1;
+            int h = (strlen(data) + 1) / w;
+
+            for (int i = 0; data[i]; i++)
+            {
+                char c = data[i];
+                switch (c)
+                {
+                    case 'T':
+                    case 'H':
+                    {
+                        struct Point pt;
+                        pt.x = i % w;
+                        pt.y = h - 1 - (i - pt.x) / w;
+                        pt.hits = c == 'T' ? 1 : 2;
+                        targets.push_back(pt);
+                        break;
+                    }
+                    case '.':
+                    case 0x0A:
+                    case '=':
+                        break;
+                    default:
+                    {
+                        struct Point pt;
+                        pt.x = i % w;
+                        pt.y = h - 1 - (i - pt.x) / w;
+
+                        segments[c] = pt;
+                        break;
+                    }
                 }
             }
         }
@@ -63,6 +118,41 @@ public:
 static unsigned int shoot(struct Point target, struct Point from, int coef)
 {
     int distance = target.x - from.x;
+    if (distance < 1)
+    {
+        throw;
+    }
+
+    distance -= from.y - target.y;
+
+    if (distance % 3 == 0)
+    {
+        return coef * (distance / 3) * target.hits;
+    }
+    return 0;
+}
+
+static unsigned int shootStar(struct Point target, struct Point from, int coef)
+{
+    int a = target.y - target.x;
+
+    int distance = target.x - from.x;
+
+    if (from.x + a == from.y)
+    {
+        // on the same line
+        if (distance & 1)
+        {
+            // int k = (distance+1) / 2;
+            // int x1 = from.x + k;
+        }
+        else
+        {
+            return 0;
+        }
+        return 0;
+    }
+
     if (distance < 1)
     {
         throw;
@@ -121,7 +211,26 @@ static unsigned int part3()
 
     unsigned int total = 0;
 
-    return total;
+    for (auto target : map.targets)
+    {
+        unsigned int v = shoot(target, map.segments['C'], 3);
+        if (v == 0)
+        {
+            v = shoot(target, map.segments['B'], 2);
+        }
+        if (v == 0)
+        {
+            v = shoot(target, map.segments['A'], 1);
+        }
+        if (v == 0)
+        {
+            throw;
+        }
+
+        total += v;
+    }
+
+    return 0;
 }
 
 void quest12()
