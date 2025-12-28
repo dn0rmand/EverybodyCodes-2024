@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include <cstdlib>
-// #include <stdint.h>
 #include "tools/quickSearch.h"
 #include "tools/quickSort.h"
 #include "tools/readData.h"
+#include <cstdlib>
+#include <stdio.h>
 
 #define MAX_ROW 1000
 
@@ -58,14 +57,14 @@ static unsigned int part1()
     {
         switch (*ptr)
         {
-        case 'A':
-            break;
-        case 'B':
-            sum++;
-            break;
-        case 'C':
-            sum += 3;
-            break;
+            case 'A':
+                break;
+            case 'B':
+                sum++;
+                break;
+            case 'C':
+                sum += 3;
+                break;
         }
     }
 
@@ -85,20 +84,20 @@ static unsigned int part2()
         {
             switch (ptr[i])
             {
-            case 'X':
-                size = 0;
-                break;
-            case 'A':
-                break;
-            case 'B':
-                subTotal += 1;
-                break;
-            case 'C':
-                subTotal += 3;
-                break;
-            case 'D':
-                subTotal += 5;
-                break;
+                case 'X':
+                    size = 0;
+                    break;
+                case 'A':
+                    break;
+                case 'B':
+                    subTotal += 1;
+                    break;
+                case 'C':
+                    subTotal += 3;
+                    break;
+                case 'D':
+                    subTotal += 5;
+                    break;
             }
         }
         sum += size + subTotal;
@@ -120,20 +119,20 @@ static unsigned int part3()
         {
             switch (ptr[i])
             {
-            case 'X':
-                size -= 1;
-                break;
-            case 'A':
-                break;
-            case 'B':
-                subTotal += 1;
-                break;
-            case 'C':
-                subTotal += 3;
-                break;
-            case 'D':
-                subTotal += 5;
-                break;
+                case 'X':
+                    size -= 1;
+                    break;
+                case 'A':
+                    break;
+                case 'B':
+                    subTotal += 1;
+                    break;
+                case 'C':
+                    subTotal += 3;
+                    break;
+                case 'D':
+                    subTotal += 5;
+                    break;
             }
         }
 
