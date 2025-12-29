@@ -1,3 +1,4 @@
+#include "tools/map.h"
 #include "tools/readData.h"
 #include "tools/timings.h"
 #include <queue>
@@ -23,7 +24,7 @@ public:
     int y;
 };
 
-class Map
+class Map2
 {
 private:
     const char *data;
@@ -33,14 +34,14 @@ public:
     int height;
 
 public:
-    Map(int part)
+    Map2(int part)
     {
         data = (const char *)tools::readData(DAY, part);
         width = (int)tools::stringLength(data);
         height = (int)(strlen(data) + 1) / (width + 1);
     }
 
-    ~Map()
+    ~Map2()
     {
         free((void *)data);
     }
@@ -76,7 +77,7 @@ public:
 
 static unsigned int findShortestPath(int part)
 {
-    Map map(part);
+    tools::Map map(DAY, part);
 
     std::queue<State> states;
 

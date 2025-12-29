@@ -1,13 +1,14 @@
-#include <stdio.h>
-#include <string.h>
 #include "tools/readData.h"
 #include "tools/timings.h"
+#include <stdio.h>
+#include <string.h>
 
 #define DAY "00"
+#define QUEST_NAME quest##DAY
 
 static unsigned int part1()
 {
-    void* data = tools::readData(DAY, 1);
+    void *data = tools::readData(DAY, 1);
 
     unsigned int total = 0;
 
@@ -18,7 +19,7 @@ static unsigned int part1()
 
 static unsigned int part2()
 {
-    void* data = tools::readData(DAY, 2);
+    void *data = tools::readData(DAY, 2);
 
     unsigned int total = 0;
 
@@ -29,7 +30,7 @@ static unsigned int part2()
 
 static unsigned int part3()
 {
-    void* data = tools::readData(DAY, 3);
+    void *data = tools::readData(DAY, 3);
 
     unsigned int total = 0;
 
@@ -38,7 +39,7 @@ static unsigned int part3()
     return total;
 }
 
-void quest00()
+void QUEST_NAME()
 {
     printf("QUEST %s\n", DAY);
 
@@ -56,5 +57,5 @@ int main(int count, char **args)
 {
     Timing _t;
 
-    quest00();
+    QUEST_NAME();
 }
