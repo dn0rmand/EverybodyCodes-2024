@@ -1,8 +1,9 @@
-#include <stdio.h>
-#include <string.h>
-#include <map>
+#include "tools/macros.h"
 #include "tools/readData.h"
 #include "tools/timings.h"
+#include <map>
+#include <stdio.h>
+#include <string.h>
 
 #define DAY "05"
 #define COLUMNS 4
@@ -177,7 +178,7 @@ public:
                     v = v * 10 + *ptr - '0';
                     ptr++;
                 }
-                this->base = this->base < b ? b : this->base;
+                this->base = MAX(this->base, b);
                 columns[column].push(v);
             }
         }
@@ -266,7 +267,7 @@ static unsigned long part3()
     unsigned long max = 0;
     int round = 0;
 
-    for(round = 0; round < (columns.height() * COLUMNS); round++)
+    for (round = 0; round < (columns.height() * COLUMNS); round++)
     {
         columns.dance(round);
         unsigned long v = columns.callIt();

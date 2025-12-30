@@ -1,3 +1,4 @@
+#include "tools/macros.h"
 #include "tools/map.h"
 #include "tools/readData.h"
 #include "tools/timings.h"
@@ -8,21 +9,11 @@
 
 #define DAY "13"
 
-#define abs(x) ((x) < 0 ? -(x) : (x))
-#define min(x, y) ((x) < (y) ? (x) : (y))
-
-class Point
+typedef struct
 {
-public:
-    Point(int x, int y)
-    {
-        this->x = x;
-        this->y = y;
-    }
-
     int x;
     int y;
-};
+} TPoint;
 
 class Map2
 {
@@ -106,7 +97,10 @@ static unsigned int findShortestPath(int part)
         states.pop();
         int x = state.x;
         int y = state.y;
-        for (Point pt : {Point(x - 1, y), Point(x + 1, y), Point(x, y - 1), Point(x, y + 1)})
+
+        TPoint points[] = {{.x = x - 1, .y = y}, {.x = x + 1, .y = y}, {.x = x, .y = y - 1}, {.x = x, .y = y + 1}};
+
+        for (TPoint pt : points)
         {
             const char v = map.get(pt.x, pt.y);
             if (v == '#' || v == 'S')
@@ -118,10 +112,10 @@ static unsigned int findShortestPath(int part)
 
             if (level != state.level)
             {
-                int t1 = abs(state.level - level);
-                int t2 = abs(10 + state.level - level);
-                int t3 = abs(state.level - 10 - level);
-                time = min(min(t1, t2), t3);
+                int t1 = ABS(state.level - level);
+                int t2 = ABS(10 + state.level - level);
+                int t3 = ABS(state.level - 10 - level);
+                time = MIN(MIN(t1, t2), t3);
             }
             time += 1 + state.time;
             int best = visited[pt.x + map.width * pt.y];
