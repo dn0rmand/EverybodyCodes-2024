@@ -59,7 +59,7 @@ public:
         return c;
     }
 
-    const char set(int x, int y, char c)
+    virtual const char set(int x, int y, const char c)
     {
         const char old = get(x, y);
 
