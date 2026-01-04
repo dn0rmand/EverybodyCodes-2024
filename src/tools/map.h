@@ -12,6 +12,13 @@ namespace tools
         char *data;
         bool autoDelete;
 
+        void initialize(const void *input)
+        {
+            data = (char *)input;
+            width = (int)tools::stringLength(data);
+            height = (int)(strlen(data) + 1) / (width + 1);
+        }
+
     protected:
         const int getIndex(int x, int y)
         {
@@ -25,21 +32,15 @@ namespace tools
     public:
         Map(const char *day, int part)
         {
-            // autoDelete = true;
-            // data = tools::readData(day, part);
+            autoDelete = true;
 
-            tools::Map(tools::readData(day, part), true);
-
-            // width = (int)tools::stringLength(data);
-            // height = (int)(strlen(data) + 1) / (width + 1);
+            initialize(tools::readData(day, part));
         }
 
         Map(const void *input, bool autoDelete = true)
         {
             autoDelete = autoDelete;
-            data = (char *)input;
-            width = (int)tools::stringLength(data);
-            height = (int)(strlen(data) + 1) / (width + 1);
+            initialize(input);
         }
 
         ~Map()
