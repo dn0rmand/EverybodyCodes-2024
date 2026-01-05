@@ -1,3 +1,4 @@
+#include "tools/macros.h"
 #include "tools/readData.h"
 #include "tools/timings.h"
 #include <map>
@@ -7,18 +8,27 @@
 
 #define DAY "12"
 
-struct Point
+typedef struct
+{
+    int score;
+    int rank;
+    int altitude;
+} TRank;
+
+static TRank missed = {.score = INT32_MAX, .altitude = 0};
+
+typedef struct
 {
     int x;
     int y;
     int hits;
-};
+} TPoint;
 
 class Map
 {
 public:
-    std::map<char, struct Point> segments;
-    std::vector<struct Point> targets;
+    std::map<char, TPoint> segments;
+    std::vector<TPoint> targets;
 
     static int getValue(char **ptr)
     {
@@ -49,9 +59,9 @@ public:
         char *data = (char *)tools::readData(DAY, part);
         if (part == 3)
         {
-            struct Point ptA = {.x = 0, .y = 0};
-            struct Point ptB = {.x = 0, .y = 1};
-            struct Point ptC = {.x = 0, .y = 2};
+            TPoint ptA = {.x = 0, .y = 0};
+            TPoint ptB = {.x = 0, .y = 1};
+            TPoint ptC = {.x = 0, .y = 2};
 
             segments['C'] = ptC;
             segments['B'] = ptB;
@@ -71,7 +81,7 @@ public:
                     throw;
                 }
 
-                struct Point pt = {.x = x, .y = y, .hits = 1};
+                TPoint pt = {.x = x, .y = y, .hits = 1};
                 targets.push_back(pt);
             }
         }
@@ -88,7 +98,7 @@ public:
                     case 'T':
                     case 'H':
                     {
-                        struct Point pt;
+                        TPoint pt;
                         pt.x = i % w;
                         pt.y = h - 1 - (i - pt.x) / w;
                         pt.hits = c == 'T' ? 1 : 2;
@@ -101,7 +111,7 @@ public:
                         break;
                     default:
                     {
-                        struct Point pt;
+                        TPoint pt;
                         pt.x = i % w;
                         pt.y = h - 1 - (i - pt.x) / w;
 
@@ -115,7 +125,7 @@ public:
     }
 };
 
-static unsigned int shoot(struct Point target, struct Point from, int coef)
+static unsigned int shoot(TPoint target, TPoint from, int coef)
 {
     int distance = target.x - from.x;
     if (distance < 1)
@@ -132,39 +142,92 @@ static unsigned int shoot(struct Point target, struct Point from, int coef)
     return 0;
 }
 
-static unsigned int shootStar(struct Point target, struct Point from, int coef)
+static TRank shootStar(TPoint star, TPoint rocket, int coef, TRank best)
 {
-    int a = target.y - target.x;
+    int maxTime = (star.x + 1) / 2;
+    int C = star.y - star.x;
 
-    int distance = target.x - from.x;
-
-    if (from.x + a == from.y)
+    if ((rocket.x + C) == rocket.y)
     {
-        // on the same line
-        if (distance & 1)
+        int score = maxTime * coef;
+        int altitude = maxTime + C;
+        if (altitude > best.altitude || (altitude == best.altitude && score < best.score))
         {
-            // int k = (distance+1) / 2;
-            // int x1 = from.x + k;
+            best = {.altitude = altitude, .rank = coef, .score = score};
         }
-        else
+        return best;
+    }
+
+    int found = false;
+    TRank localBest = missed;
+
+    for (int f = maxTime; f > 0; f--)
+    {
+        TPoint from = rocket;
+        TPoint target = star;
+
+        target.x -= f;
+        target.y -= f;
+        from.x += f;
+        from.y += f;
+
+        int start = f;
+
+        if ((target.x - f) > (from.x + f))
         {
-            return 0;
+            target.x -= f;
+            target.y -= f;
+            from.x += f;
+            start += f;
         }
-        return 0;
+
+        for (int step = start;; step++)
+        {
+            target.x--;
+            target.y--;
+            from.x++;
+
+            if (step >= (f + f))
+            {
+                from.y--;
+            }
+            if (target.x < from.x)
+            {
+                break;
+            }
+
+            if (target.y <= 0 || from.y < 0)
+            {
+                break;
+            }
+
+            if (from.y == from.x + C && step >= (f - 1)) // on the line
+            {
+                // just a matter of time offset
+                if (target.x - from.x == target.y - from.y)
+                {
+                    target = from;
+                }
+            }
+
+            if (target.y < best.altitude)
+            {
+                break;
+            }
+
+            if (from.x == target.x && from.y == target.y)
+            {
+                int score = f * coef;
+                if (from.y > best.altitude || (from.y == best.altitude && score < best.score))
+                {
+                    best = {.altitude = from.y, .rank = coef, .score = score};
+                }
+                return best;
+            }
+        }
     }
 
-    if (distance < 1)
-    {
-        throw;
-    }
-
-    distance -= from.y - target.y;
-
-    if (distance % 3 == 0)
-    {
-        return coef * (distance / 3) * target.hits;
-    }
-    return 0;
+    return best;
 }
 
 static unsigned int shootThemAll(int part)
@@ -211,26 +274,18 @@ static unsigned int part3()
 
     unsigned int total = 0;
 
-    for (auto target : map.targets)
+    for (TPoint &target : map.targets)
     {
-        unsigned int v = shoot(target, map.segments['C'], 3);
-        if (v == 0)
-        {
-            v = shoot(target, map.segments['B'], 2);
-        }
-        if (v == 0)
-        {
-            v = shoot(target, map.segments['A'], 1);
-        }
-        if (v == 0)
-        {
-            throw;
-        }
+        TRank best = missed;
 
-        total += v;
+        best = shootStar(target, map.segments['C'], 3, best);
+        best = shootStar(target, map.segments['B'], 2, best);
+        best = shootStar(target, map.segments['A'], 1, best);
+
+        total += best.score;
     }
 
-    return 0;
+    return total;
 }
 
 void quest12()
