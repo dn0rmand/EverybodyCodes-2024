@@ -1,28 +1,20 @@
 #ifndef TIMINGS_H
 #define TIMINGS_H
 
-#include <time.h>
 #include <stdio.h>
+#include <time.h>
 
-class Timing
-{
-    private:
-        clock_t start;
+class Timing {
+private:
+  clock_t start;
+  clock_t mainStart;
 
-    public:
-        ~Timing()
-        {
-            clock_t end = clock();
+public:
+  ~Timing();
 
-            int msec = (end-this->start) * 1000 / CLOCKS_PER_SEC;
+  Timing();
 
-            printf("Executed in %d seconds %d milliseconds\n", msec/1000, msec%1000);
-        }
-
-        Timing()
-        {
-            this->start = clock();
-        }      
+  void log(const char *message);
 };
 
 #endif

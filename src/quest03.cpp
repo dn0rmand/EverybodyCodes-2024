@@ -2,6 +2,7 @@
 #include <string.h>
 #include "tools/readData.h"
 
+namespace quest03_namespace {
 class Data
 {
 private:
@@ -180,22 +181,18 @@ static unsigned int part3()
     }
     return total;
 }
+} // namespace quest03_namespace
 
 void quest03()
 {
     printf("QUEST 3\n");
 
-    unsigned int d1 = part1();
+    unsigned int d1 = quest03_namespace::part1();
     printf("\tPART 1 = %u\n", d1);
 
-    unsigned int d2 = part2();
+    unsigned int d2 = quest03_namespace::part2();
     printf("\tPART 2 = %u\n", d2);
 
-    unsigned int d3 = part3();
+    unsigned int d3 = quest03_namespace::part3();
     printf("\tPART 3 = %u\n", d3);
-}
-
-int main(int count, char **args)
-{
-    quest03();
 }

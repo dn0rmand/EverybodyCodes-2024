@@ -1,11 +1,10 @@
-#include "tools/quickSearch.h"
-#include "tools/quickSort.h"
 #include "tools/readData.h"
 #include <cstdlib>
 #include <stdio.h>
 
 #define MAX_ROW 1000
 
+namespace quest01_namespace {
 static const char *quest01_data;
 
 static char *cursor;
@@ -143,26 +142,22 @@ static unsigned int part3()
 
     return sum;
 }
+} // namespace quest01_namespace
 
 void quest01()
 {
-    loadData();
+    quest01_namespace::loadData();
 
     printf("QUEST 1\n");
 
-    unsigned int d1 = part1();
+    unsigned int d1 = quest01_namespace::part1();
     printf("\tPART 1 = %u\n", d1);
 
-    unsigned int d2 = part2();
+    unsigned int d2 = quest01_namespace::part2();
     printf("\tPART 2 = %u\n", d2);
 
-    unsigned int d3 = part3();
+    unsigned int d3 = quest01_namespace::part3();
     printf("\tPART 3 = %u\n", d3);
 
-    free((void *)quest01_data);
-}
-
-int main(int count, char **args)
-{
-    quest01();
+    free((void *)quest01_namespace::quest01_data);
 }

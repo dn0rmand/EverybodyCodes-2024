@@ -4,72 +4,31 @@
 #include "./readData.h"
 #include <string.h>
 
-namespace tools
-{
-    class Map
-    {
-    private:
-        char *data;
-        bool autoDelete;
+namespace tools {
+class Map {
+private:
+  char *data;
+  bool autoDelete;
 
-        void initialize(const void *input)
-        {
-            data = (char *)input;
-            width = (int)tools::stringLength(data);
-            height = (int)(strlen(data) + 1) / (width + 1);
-        }
+  void initialize(const void *input);
 
-    protected:
-        const int getIndex(int x, int y)
-        {
-            return x + y * (width + 1);
-        }
+protected:
+  int getIndex(int x, int y);
 
-    public:
-        int width;
-        int height;
+public:
+  int width;
+  int height;
 
-    public:
-        Map(const char *day, int part)
-        {
-            autoDelete = true;
+public:
+  Map(const char *day, int part);
 
-            initialize(tools::readData(day, part));
-        }
+  Map(const void *input, bool autoDelete = true);
 
-        Map(const void *input, bool autoDelete = true)
-        {
-            autoDelete = autoDelete;
-            initialize(input);
-        }
+  ~Map();
 
-        ~Map()
-        {
-            if (autoDelete)
-            {
-                free((void *)data);
-            }
-        }
+  virtual char get(int x, int y);
 
-        virtual const char get(int x, int y)
-        {
-            if (x < 0 || y < 0 || x >= width || y >= height)
-            {
-                return '#';
-            }
-            return data[getIndex(x, y)];
-        }
-
-        virtual const char set(int x, int y, const char c)
-        {
-            if (x < 0 || y < 0 || x >= width || y >= height)
-            {
-                return '#';
-            }
-            const char old = data[getIndex(x, y)];
-            data[getIndex(x, y)] = c;
-            return old;
-        }
-    };
-}
+  virtual char set(int x, int y, const char c);
+};
+} // namespace tools
 #endif

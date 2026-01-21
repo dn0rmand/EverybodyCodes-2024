@@ -8,14 +8,14 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/a.out",
-            "args": [],
+            "program": "${workspaceFolder}/build-debug/puzzle",
+            "args": ["19"],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "C/C++: clang++ build active file"
+            "preLaunchTask": "Build Puzzle"
         }
     ]
 }
