@@ -1,6 +1,7 @@
 #include "tools/macros.h"
 #include "tools/map.h"
 #include "tools/readData.h"
+#include <set>
 #include <stdio.h>
 #include <unordered_map>
 #include <unordered_set>
@@ -74,20 +75,33 @@ static int shortestPath(tools::Map *map, TState start, unsigned int target) {
   std::vector<TState> *states = &(info[0]);
   std::vector<TState> *newStates = &(info[1]);
   std::unordered_set<u_long> visited;
-  // Track maximum herbs collected at each position for state pruning
-  std::unordered_map<u_long, unsigned int> maxHerbsAtPosition;
+  // Track all non-dominated herb sets at each position for aggressive pruning
+  // Key: position, Value: unordered_set of herb combinations seen at that
+  // position
+  std::unordered_map<u_long, std::unordered_set<unsigned int>> herbsAtPosition;
+
+  // Precompute herb values at each position to avoid repeated getHerbValue
+  // calls
+  std::vector<std::vector<unsigned int>> herbCache(
+      map->height, std::vector<unsigned int>(map->width));
+  for (int y = 0; y < map->height; y++) {
+    for (int x = 0; x < map->width; x++) {
+      char c = map->get(x, y);
+      herbCache[y][x] = getHerbValue(c);
+    }
+  }
 
   // Reserve capacity to reduce reallocations
   visited.reserve(map->width * map->height *
                   64); // Estimate: up to 64 herb combinations
-  maxHerbsAtPosition.reserve(map->width * map->height);
+  herbsAtPosition.reserve(map->width * map->height);
   states->reserve(map->width * map->height);
   newStates->reserve(map->width * map->height);
 
   start.herbs = 0;
   states->push_back(start);
   visited.insert(getKey(start));
-  maxHerbsAtPosition[getPositionKey(start.x, start.y)] = start.herbs;
+  herbsAtPosition[getPositionKey(start.x, start.y)].insert(start.herbs);
 
   int steps = 0;
   while (states->size() > 0) {
@@ -98,32 +112,64 @@ static int shortestPath(tools::Map *map, TState start, unsigned int target) {
       for (const auto &move : moves) {
         TState newPt = {
             .x = pt.x + move.x, .y = pt.y + move.y, .herbs = pt.herbs};
-        char c = map->get(newPt.x, newPt.y);
-        if (c == '#' || c == '~') {
+
+        // Bounds check
+        if (newPt.x < 0 || newPt.x >= map->width || newPt.y < 0 ||
+            newPt.y >= map->height) {
           continue;
         }
-        newPt.herbs |= getHerbValue(c);
+
+        // Use cached herb value (already computed, includes wall/water check)
+        unsigned int herbValue = herbCache[newPt.y][newPt.x];
+        // herbValue will be 0 for walls, water, and empty spaces
+        // We need to check if it's actually a wall or water
+        if (herbValue == 0) {
+          char c = map->get(newPt.x, newPt.y);
+          if (c == '#' || c == '~') {
+            continue;
+          }
+        }
+        newPt.herbs |= herbValue;
 
         // Early termination check before expensive operations
         if (newPt.herbs == target && newPt.y == 0) {
           return steps;
         }
 
-        // State pruning: check if we've been to this position with more herbs
+        // Aggressive state pruning: check if this state is dominated
         u_long posKey = getPositionKey(newPt.x, newPt.y);
-        auto it = maxHerbsAtPosition.find(posKey);
-        if (it != maxHerbsAtPosition.end()) {
-          // If current herbs is a subset of max herbs we've seen here, prune
-          if (isSubset(newPt.herbs, it->second)) {
-            continue;
+        auto &herbSets = herbsAtPosition[posKey];
+
+        // Fast dominance check using unordered_set
+        bool isDominated = false;
+        // Check if any existing herb set at this position dominates this one
+        for (unsigned int existingHerbs : herbSets) {
+          // If existing herbs is a superset of new herbs, new state is
+          // dominated
+          if (isSubset(newPt.herbs, existingHerbs)) {
+            isDominated = true;
+            break;
           }
-          // Update max herbs if we have more now
-          if (newPt.herbs > it->second) {
-            it->second = newPt.herbs;
-          }
-        } else {
-          maxHerbsAtPosition[posKey] = newPt.herbs;
         }
+
+        if (isDominated) {
+          continue;
+        }
+
+        // Remove any existing herb sets that are dominated by this new one
+        // Use erase-remove idiom for better performance with unordered_set
+        std::vector<unsigned int> toRemove;
+        for (unsigned int existingHerbs : herbSets) {
+          if (isSubset(existingHerbs, newPt.herbs)) {
+            toRemove.push_back(existingHerbs);
+          }
+        }
+        for (unsigned int herbs : toRemove) {
+          herbSets.erase(herbs);
+        }
+
+        // Add this new herb set
+        herbSets.insert(newPt.herbs);
 
         u_long key = getKey(newPt);
         if (visited.find(key) != visited.end()) {
